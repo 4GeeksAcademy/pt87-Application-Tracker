@@ -1,3 +1,52 @@
+# ApplyTrack
+
+## 📌 Project Overview
+ApplyTrack is a full-stack web application that helps users **track and manage their job applications** throughout the hiring process. Instead of relying on spreadsheets or notes, users can store applications in one centralized dashboard, update their status, view salary information, and discover new job opportunities using a third-party job listings API.
+
+This project was built as a **team-based full-stack application** using React, Flask, PostgreSQL, and an external API as part of a 4Geeks Academy final project.
+
+---
+
+## 🚀 Features
+- User authentication (register, login, logout)
+- Add job applications with company, role, location, salary, and status
+- View all applications in a centralized dashboard
+- Update application status (Applied, Interview, Offer, Rejected)
+- Delete outdated or rejected applications
+- Search real job listings using a third-party API (JSearch)
+- Save jobs directly from search results into the tracker
+- Simple and intuitive navigation
+
+---
+
+## 🧑‍💻 Key User Stories (MVP)
+- As a user, I want to create an account so I can securely store my job applications.
+- As a user, I want to log in and log out so only I can access my data.
+- As a user, I want to add a job application so I can track where I applied.
+- As a user, I want to view all my job applications in one dashboard so I can see my progress.
+- As a user, I want to update the status of a job application so I can track my hiring stage.
+- As a user, I want to search for jobs using a third-party API so I can find new opportunities.
+- As a user, I want to save jobs from search results so I don’t have to manually enter details.
+
+---
+
+## 🔌 Third-Party API
+ApplyTrack integrates the **JSearch API**, which provides real job listings based on keyword and location. When available, salary information is displayed. Only essential job details are stored locally in the database to support application tracking.
+
+---
+
+## 🏗 Tech Stack
+- **Frontend:** React, JavaScript, HTML, CSS  
+- **Backend:** Python, Flask  
+- **Database:** PostgreSQL  
+- **Third-Party API:** JSearch (Job Listings)
+
+---
+
+## 📂 Project Structure...
+
+
+
 # WebApp boilerplate with React JS and Flask API
 
 Build web applications using React.js for the front end and python/flask for your backend API.
