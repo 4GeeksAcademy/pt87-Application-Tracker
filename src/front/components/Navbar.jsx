@@ -1,13 +1,19 @@
 import { Link } from "react-router-dom";
+import logo from "../assets/img/applytracklogo.png";
+
+
 
 export const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container">
-        
+        <nav className="navbar">
+          <img src={logo} alt="Logo" height="40" />
+        </nav>
+
         <Link to="/">
-                    <span className="navbar-brand mb-0 h1">ApplyTrack</span>
-                </Link>
+          <span className="navbar-brand mb-0 h1">ApplyTrack</span>
+        </Link>
 
         {/* Toggle Button */}
         <button
