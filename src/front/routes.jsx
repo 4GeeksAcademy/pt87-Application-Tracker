@@ -9,9 +9,9 @@ import { Layout } from "./pages/Layout";
 import { Home } from "./pages/Home";
 import { Single } from "./pages/Single";
 import { Demo } from "./pages/Demo";
-import { Dashboard } from "./pages/Dashboard";
-import { Login } from "./pages/Login";
-import { Application } from "./pages/Application"
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import Application from "./pages/Application"
 
 export const router = createBrowserRouter(
     createRoutesFromElements(
