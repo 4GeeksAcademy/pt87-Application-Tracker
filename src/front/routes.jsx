@@ -11,7 +11,8 @@ import { Single } from "./pages/Single";
 import { Demo } from "./pages/Demo";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
-import Application from "./pages/Application"
+import Application from "./pages/Application";
+import Addjob from "./pages/Addjob"
 
 export const router = createBrowserRouter(
     createRoutesFromElements(
@@ -31,6 +32,7 @@ export const router = createBrowserRouter(
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/application" element={<Application />} />
+        <Route path="/add-job" element={<Addjob />} />
       </Route>
     )
 );
