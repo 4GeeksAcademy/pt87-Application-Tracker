@@ -8,10 +8,11 @@ export const Navbar = () => {
 				<Link to="/">
 					<span className="navbar-brand mb-0 h1">React Boilerplate</span>
 				</Link>
-				<div className="ml-auto">
+				<div className="ml-auto d-flex align-items-center" style={{ gap: '8px' }}>
 					<Link to="/demo">
 						<button className="btn btn-primary">Check the Context in action</button>
 					</Link>
+					<button className="btn btn-success">Login</button>
 				</div>
 			</div>
 		</nav>
