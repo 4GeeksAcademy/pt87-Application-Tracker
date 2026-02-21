@@ -5,7 +5,7 @@ import logo from "../assets/img/applytracklogo.png";
 
 export const Navbar = () => {
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
         <nav className="navbar">
           <img src={logo} alt="Logo" height="40" />

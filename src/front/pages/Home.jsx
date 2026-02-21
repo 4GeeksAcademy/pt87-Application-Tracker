@@ -34,10 +34,8 @@ export const Home = () => {
 
 	return (
 		<div className="text-center mt-5">
-			<h1 className="display-4">Hello Rigo!!</h1>
-			<p className="lead">
-				<img src={rigoImageUrl} className="img-fluid rounded-circle mb-3" alt="Rigo Baby" />
-			</p>
+			<h1 className="display-5">ApplyTrack</h1>
+			<h3 className="display-8">Track every step of your job hunt</h3>
 			<div className="alert alert-info">
 				{store.message ? (
 					<span>{store.message}</span>

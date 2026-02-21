@@ -88,6 +88,5 @@ export default function Addjob() {
         </select>
       </div>
     </div>
-
   );
 }
