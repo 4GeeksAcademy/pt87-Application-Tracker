@@ -6,12 +6,38 @@ const Login = () => {
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [pwdError, setPwdError] = useState("");
+    const [emailError, setEmailError] = useState("");
+    // Email validation
+    const validateEmail = (mail) => {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) return "Invalid email format.";
+        return "";
+    };
     const navigate = useNavigate();
+
+    // Password complexity check
+    const validatePassword = (pwd) => {
+        if (pwd.length < 8) return "Password must be at least 8 characters.";
+        if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd)) return "Password must include at least one symbol.";
+        return "";
+    };
 
     // Handle login form submit
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
+        const mailCheck = validateEmail(user);
+        const pwdCheck = validatePassword(password);
+        if (mailCheck) {
+            setEmailError(mailCheck);
+            return;
+        }
+        setEmailError("");
+        if (pwdCheck) {
+            setPwdError(pwdCheck);
+            return;
+        }
+        setPwdError("");
         try {
             const resp = await fetch("/api/login", {
                 method: "POST",
@@ -36,17 +62,31 @@ const Login = () => {
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                     <label className="form-label">User (Email)</label>
-                    <input type="email" className="form-control" value={user} onChange={e => setUser(e.target.value)} required />
+                    <input
+                        type="email"
+                        className="form-control"
+                        value={user}
+                        onChange={e => {
+                            setUser(e.target.value);
+                            setEmailError(validateEmail(e.target.value));
+                        }}
+                        required
+                    />
+                    {emailError && <div className="alert alert-warning mt-2">{emailError}</div>}
                 </div>
                 <div className="mb-3">
                     <label className="form-label">Password</label>
-                    <input type="password" className="form-control" value={password} onChange={e => setPassword(e.target.value)} required />
-                    {/* Password complexity info */}
-                    <div className="form-text text-muted mt-1" style={{ fontSize: '0.95em' }}>
-                        <span style={{ display: 'inline-block', background: '#f8f9fa', borderRadius: '4px', padding: '6px 10px', border: '1px solid #e0e0e0' }}>
-                            Password must be at least <b>8 characters</b> and include <b>one symbol</b> (e.g. !@#$%^&amp;*).
-                        </span>
-                    </div>
+                    <input
+                        type="password"
+                        className="form-control"
+                        value={password}
+                        onChange={e => {
+                            setPassword(e.target.value);
+                            setPwdError(validatePassword(e.target.value));
+                        }}
+                        required
+                    />
+                    {pwdError && <div className="alert alert-warning mt-2">{pwdError}</div>}
                 </div>
                 {error && <div className="alert alert-danger">{error}</div>}
                 <button type="submit" className="btn btn-success w-100">Login</button>
