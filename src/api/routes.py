@@ -23,7 +23,7 @@ JWT_SECRET = os.getenv('JWT_SECRET', 'super-secret-key')
 JWT_ALGORITHM = 'HS256'
 
 # Password complexity regex: min 8 chars, at least one symbol
-PASSWORD_REGEX = re.compile(r'^(?=.*[!@#$%^&*()_+\-=[\]{};': "\\|,.<>/?]).{8,}$')
+PASSWORD_REGEX = re.compile(r'^(?=.*[!@#$%^&*()_+\-=[\]{};:\\|,.<>/?]).{8,}$')
 
 
 @api.route('/hello', methods=['POST', 'GET'])
