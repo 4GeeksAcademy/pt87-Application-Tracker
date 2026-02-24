@@ -1,11 +1,32 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import useGlobalReducer from '../hooks/useGlobalReducer';
+
 export default function Addjob() {
+
+  const Addjob = () => {
+    const naviagte = useNaviagte();
+    const { dispatch } = useGlobalReducer();
+
+    const [application, setApplication] = useState({
+      companyname: '',
+      role: '',
+      location: '',
+      details: '',
+      date: '',
+      status: '',
+      salary: '',
+      notes: '',
+      employmenttype: '',
+    });
+  }
   return (
     <div className="container mt-4">
       <h1>Add Job</h1>
       <p>Add job findings here.</p>
       <div class="col-md-6">
         <label for="validationCustom02" class="form-label"
-        >Company</label
+        >Company Name</label
         >
         <input
           type="text"
@@ -42,6 +63,18 @@ export default function Addjob() {
       </div>
       <div class="col-md-6">
         <label for="validationCustom02" class="form-label"
+        >Details</label
+        >
+        <input
+          type="text"
+          class="form-control"
+          id="validationCustom02"
+          value=""
+          required
+        />
+      </div>
+      <div class="col-md-6">
+        <label for="validationCustom02" class="form-label"
         >Date</label
         >
         <input
@@ -55,6 +88,18 @@ export default function Addjob() {
       <div class="col-md-6">
         <label for="validationCustom02" class="form-label"
         >Status</label
+        >
+        <input
+          type="text"
+          class="form-control"
+          id="validationCustom02"
+          value=""
+          required
+        />
+      </div>
+      <div class="col-md-6">
+        <label for="validationCustom02" class="form-label"
+        >Salary</label
         >
         <input
           type="text"
