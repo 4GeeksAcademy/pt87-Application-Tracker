@@ -13,6 +13,7 @@ export default function Addjob() {
           id="validationCustom02"
           value=""
           required
+          onChange={()=>{}}
         />
       </div>
       <div class="col-md-6">
