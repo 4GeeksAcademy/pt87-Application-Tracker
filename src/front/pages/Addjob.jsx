@@ -87,6 +87,11 @@ export default function Addjob() {
           <option value="4">Internship</option>
         </select>
       </div>
+      <div className="hero-actions">
+        <a href="#" class="btn-primary">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>Add Job
+        </a>
+      </div>
     </div>
   );
 }
