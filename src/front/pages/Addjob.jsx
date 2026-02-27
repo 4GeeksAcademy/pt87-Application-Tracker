@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const STATUS_OPTIONS = ["Interested", "Applied", "Interview", "Offer", "Rejected"];
+const STATUS_OPTIONS = ["Interested", "Applied", "Interview", "Offer", "Dismissed"];
 
 export default function Addjob() {
   const navigate = useNavigate();

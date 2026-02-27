@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
-const STATUS_OPTIONS = ["Interested", "Applied", "Interview", "Offer", "Rejected"];
+const STATUS_OPTIONS = ["Interested", "Applied", "Interview", "Offer", "Dismissed"];
 
 export default function Application() {
       const [applications, setApplications] = useState([]);
@@ -24,7 +24,7 @@ export default function Application() {
                               Applied: 0,
                               Interview: 0,
                               Offer: 0,
-                              Rejected: 0,
+                              Dismissed: 0,
                         },
                   }
             );
@@ -97,7 +97,7 @@ export default function Application() {
                         <div>
                               <h1 className="mb-1">Applications</h1>
                               <p className="text-muted mb-0">
-                                    Track, update stages, and remove rejected or old applications.
+                                    Track, update stages, and remove dismissed or old applications.
                               </p>
                         </div>
                         <Link to="/add-job" className="btn btn-primary">
@@ -132,8 +132,8 @@ export default function Application() {
                         </div>
                         <div className="col-md-2 col-6">
                               <div className="card p-2 text-center">
-                                    <strong>{summary.byStatus.Rejected}</strong>
-                                    <span>Rejected</span>
+                                    <strong>{summary.byStatus.Dismissed}</strong>
+                                    <span>Dismissed</span>
                               </div>
                         </div>
                   </div>
