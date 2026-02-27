@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { MetricsContext } from "../context/MetricsContext"; // adjust path if needed
+import { MetricsContext } from "../providers/Metrics"; 
 import StatsPanel from "./StatsPanel";
 import ChartPanel from "./ChartPanel";
 export default function Dashboard() {

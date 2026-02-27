@@ -1,5 +1,5 @@
 const MetricsContext = createContext();
-function MetricsProvider({ children }) {
+function MetricsProviders({ children }) {
   const [applications, setApplications] = useState([]);
   const metrics = {
     applications: applications.length,
@@ -8,8 +8,8 @@ function MetricsProvider({ children }) {
     dismissed: applications.filter(app => app.status === "dismissed").length
   };
   return (
-    <MetricsContext.Provider value={{ applications, setApplications, metrics }}>
+    <MetricsContext.Providers value={{ applications, setApplications, metrics }}>
       {children}
-    </MetricsContext.Provider>
+    </MetricsContext.Providers>
   );
 }
