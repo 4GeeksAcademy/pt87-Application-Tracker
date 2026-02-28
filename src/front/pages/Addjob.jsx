@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react"; 
 import { Link, useNavigate } from "react-router-dom";
+import { MetricsContext } from "../providers/Metrics"; 
 
 const STATUS_OPTIONS = ["Interested", "Applied", "Interview", "Offer", "Dismissed"];
 
 export default function Addjob() {
   const navigate = useNavigate();
+  const { setApplications } = useContext(MetricsContext); 
   const [form, setForm] = useState({
     company: "",
     role: "",
@@ -46,6 +48,7 @@ export default function Addjob() {
         throw new Error(payload?.error || "Could not save application.");
       }
 
+      setApplications((prev) => [...prev, payload.data]); 
       navigate("/application");
     } catch (submitError) {
       setError(submitError.message || "Unexpected error.");
@@ -54,7 +57,7 @@ export default function Addjob() {
     }
   };
 
-  return (
+ return (
     <div className="container mt-4" style={{ maxWidth: "700px" }}>
       <h1>Add Job</h1>
       <p className="text-muted">Save an application and track it in your Applications page.</p>

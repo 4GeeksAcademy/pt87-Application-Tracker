@@ -1,97 +1,96 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useContext } from "react"; 
 import { Link } from "react-router-dom";
+import { MetricsContext } from "../providers/Metrics"; 
 
 const STATUS_OPTIONS = ["Interested", "Applied", "Interview", "Offer", "Dismissed"];
 
 export default function Application() {
-      const [applications, setApplications] = useState([]);
-      const [isLoading, setIsLoading] = useState(true);
-      const [error, setError] = useState("");
+  const { applications, setApplications } = useContext(MetricsContext); 
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState("");
 
-      const summary = useMemo(() => {
-            return applications.reduce(
-                  (acc, app) => {
-                        acc.total += 1;
-                        if (app.status in acc.byStatus) {
-                              acc.byStatus[app.status] += 1;
-                        }
-                        return acc;
-                  },
-                  {
-                        total: 0,
-                        byStatus: {
-                              Interested: 0,
-                              Applied: 0,
-                              Interview: 0,
-                              Offer: 0,
-                              Dismissed: 0,
-                        },
-                  }
-            );
-      }, [applications]);
+  const summary = useMemo(() => {
+    return applications.reduce(
+      (acc, app) => {
+        acc.total += 1;
+        if (app.status in acc.byStatus) {
+          acc.byStatus[app.status] += 1;
+        }
+        return acc;
+      },
+      {
+        total: 0,
+        byStatus: {
+          Interested: 0,
+          Applied: 0,
+          Interview: 0,
+          Offer: 0,
+          Dismissed: 0,
+        },
+      }
+    );
+  }, [applications]);
 
-      const loadApplications = async () => {
-            try {
-                  setIsLoading(true);
-                  setError("");
-                  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/applications`);
-                  const payload = await response.json();
+  const loadApplications = async () => {
+    try {
+      setIsLoading(true);
+      setError("");
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/applications`);
+      const payload = await response.json();
 
-                  if (!response.ok) {
-                        throw new Error(payload?.error || "Could not load applications.");
-                  }
+      if (!response.ok) {
+        throw new Error(payload?.error || "Could not load applications.");
+      }
 
-                  setApplications(payload?.data || []);
-            } catch (loadError) {
-                  setError(loadError.message || "Unexpected error.");
-            } finally {
-                  setIsLoading(false);
-            }
-      };
+      setApplications(payload?.data || []); 
+    } catch (loadError) {
+      setError(loadError.message || "Unexpected error.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      useEffect(() => {
-            loadApplications();
-      }, []);
+  useEffect(() => {
+    loadApplications();
+  }, []);
 
-      const updateStatus = async (appId, status) => {
-            try {
-                  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/applications/${appId}`, {
-                        method: "PUT",
-                        headers: {
-                              "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ status }),
-                  });
+  const updateStatus = async (appId, status) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/applications/${appId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
 
-                  const payload = await response.json();
-                  if (!response.ok) {
-                        throw new Error(payload?.error || "Could not update status.");
-                  }
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error || "Could not update status.");
+      }
 
-                  setApplications((prev) => prev.map((app) => (app.id === appId ? payload.data : app)));
-            } catch (updateError) {
-                  setError(updateError.message || "Unexpected error.");
-            }
-      };
+      setApplications((prev) => prev.map((app) => (app.id === appId ? payload.data : app))); 
+    } catch (updateError) {
+      setError(updateError.message || "Unexpected error.");
+    }
+  };
 
-      const deleteApplication = async (appId) => {
-            try {
-                  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/applications/${appId}`, {
-                        method: "DELETE",
-                  });
-                  const payload = await response.json();
+  const deleteApplication = async (appId) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/applications/${appId}`, {
+        method: "DELETE",
+      });
+      const payload = await response.json();
 
-                  if (!response.ok) {
-                        throw new Error(payload?.error || "Could not delete application.");
-                  }
+      if (!response.ok) {
+        throw new Error(payload?.error || "Could not delete application.");
+      }
 
-                  setApplications((prev) => prev.filter((app) => app.id !== appId));
-            } catch (deleteError) {
-                  setError(deleteError.message || "Unexpected error.");
-            }
-      };
+      setApplications((prev) => prev.filter((app) => app.id !== appId)); 
+    } catch (deleteError) {
+      setError(deleteError.message || "Unexpected error.");
+    }
+  };
 
-      return (
+  return (
             <div className="container mt-4">
                   <div className="d-flex justify-content-between align-items-center mb-3">
                         <div>
