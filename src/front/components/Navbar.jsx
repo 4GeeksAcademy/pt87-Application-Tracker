@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../assets/img/applytracklogo.png";
+import logo from "../assets/img/logo.png";
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -11,14 +11,10 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav className="navbar navbar-expand-lg navbar-dark navbar-brand-bg">
       <div className="container">
-        <nav className="navbar">
-          <img src={logo} alt="Logo" height="40" />
-        </nav>
-
-        <Link to="/">
-          <span className="navbar-brand mb-0 h1">ApplyTrack</span>
+        <Link className="navbar-brand d-flex align-items-center" to="/">
+          <img src={logo} alt="ApplyTrack logo" height="46" />
         </Link>
 
         {/* Toggle Button */}
@@ -44,7 +40,10 @@ export const Navbar = () => {
               <Link className="nav-link" to="/application">Applications</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/add-job">Add Job</Link>
+              <Link className="btn btn-add-job" to="/add-job">
+                <i className="fa-solid fa-plus me-2"></i>
+                Add Job
+              </Link>
             </li>
           </ul>
 
