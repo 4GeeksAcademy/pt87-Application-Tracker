@@ -3,6 +3,7 @@ export default function Application() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
   const loadApplications = async () => {
     try {
       setLoading(true);
@@ -32,6 +33,38 @@ export default function Application() {
   useEffect(() => {
     loadApplications();
   }, []);
+  const handleDelete = async (appId) => {
+    const shouldDelete = window.confirm(
+      "Are you sure you want to delete this application?"
+    );
+    if (!shouldDelete) return;
+    try {
+      setDeletingId(appId);
+      setError("");
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      if (!backendUrl) {
+        throw new Error("VITE_BACKEND_URL is not defined");
+      }
+      const apiBase = backendUrl.replace(/\/$/, "");
+      const response = await fetch(`${apiBase}/api/applications/${appId}`, {
+        method: "DELETE",
+      });
+      const contentType = response.headers.get("content-type") || "";
+      const data = contentType.includes("application/json")
+        ? await response.json()
+        : null;
+      if (!response.ok) {
+        throw new Error(
+          data?.error || `Failed to delete application (status ${response.status})`
+        );
+      }
+      setApplications((prev) => prev.filter((app) => app.id !== appId));
+    } catch (err) {
+      setError(err.message || "Could not delete application");
+    } finally {
+      setDeletingId(null);
+    }
+  };
   const totalCount = applications.length;
   const interviewsCount = applications.filter((app) =>
     ["interview", "interviewing"].includes((app.status || "").toLowerCase())
@@ -79,6 +112,7 @@ export default function Application() {
                 <th>Location</th>
                 <th>Date</th>
                 <th>Type</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -90,6 +124,16 @@ export default function Application() {
                   <td>{app.location || "-"}</td>
                   <td>{app.application_date || "-"}</td>
                   <td>{app.employment_type || "-"}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-danger"
+                      onClick={() => handleDelete(app.id)}
+                      disabled={deletingId === app.id}
+                    >
+                      {deletingId === app.id ? "Deleting..." : "Delete"}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
