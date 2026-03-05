@@ -2,18 +2,15 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
+from api.models import db, User, Application
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+from datetime import date
 
 api = Blueprint('api', __name__)
 
 # Allow CORS requests to this API
 CORS(api)
-
-# Temporary in-memory store until Application model exists
-FAKE_APPLICATIONS = []
-NEXT_ID = 1
 
 
 @api.route('/hello', methods=['POST', 'GET'])
@@ -39,64 +36,83 @@ def handle_hello():
 # }
 @api.route('/applications', methods=['GET'])
 def get_applications():
-    return jsonify({"data": FAKE_APPLICATIONS}), 200
+    applications = Application.query.all()
+    return jsonify({"data": [app.serialize() for app in applications]}), 200
 
 
 @api.route('/applications', methods=['POST'])
 def create_application():
-    global NEXT_ID
     data = request.get_json() or {}
+    applied_date_str = data.get("applied_date")
+    applied_date_value = date.fromisoformat(
+        applied_date_str) if applied_date_str else None
 
-    company = data.get("company")
-    role = data.get("role")
-    status = data.get("status", "Interested")
+    new_application = Application(
+        company=data.get("company"),
+        role=data.get("role"),
+        location=data.get("location"),
+        applied_date=applied_date_value,
+        status=data.get("status", "Applied"),
+        notes=data.get("notes"),
+        employment_type=data.get("employment_type")
+    )
 
-    if not company or not role:
-        return jsonify({"error": "company and role are required"}), 400
+    db.session.add(new_application)
+    db.session.commit()
 
-    new_app = {
-        "id": NEXT_ID,
-        "company": company,
-        "role": role,
-        "status": status
-    }
-    NEXT_ID += 1
-    FAKE_APPLICATIONS.append(new_app)
-
-    return jsonify({"data": new_app}), 201
+    return jsonify({"data": new_application.serialize()}), 201
 
 
 @api.route('/applications/<int:app_id>', methods=['GET'])
 def get_application(app_id):
-    app = next((a for a in FAKE_APPLICATIONS if a["id"] == app_id), None)
+    app = Application.query.get(app_id)
+
     if app is None:
         return jsonify({"error": "application not found"}), 404
 
-    return jsonify({"data": app}), 200
+    return jsonify({"data": app.serialize()}), 200
 
 
 @api.route('/applications/<int:app_id>', methods=['PUT'])
 def update_application(app_id):
     data = request.get_json() or {}
-    app = next((a for a in FAKE_APPLICATIONS if a["id"] == app_id), None)
+
+    app = Application.query.get(app_id)
+
     if app is None:
         return jsonify({"error": "application not found"}), 404
 
-    # Update only provided fields
-    for field in ["company", "role", "status"]:
-        if field in data and data[field] is not None:
-            app[field] = data[field]
+    if "company" in data:
+        app.company = data["company"]
 
-    return jsonify({"data": app}), 200
+    if "role" in data:
+        app.role = data["role"]
+
+    if "location" in data:
+        app.location = data["location"]
+
+    if "status" in data:
+        app.status = data["status"]
+
+    if "notes" in data:
+        app.notes = data["notes"]
+
+    if "employment_type" in data:
+        app.employment_type = data["employment_type"]
+
+    db.session.commit()
+
+    return jsonify({"data": app.serialize()}), 200
 
 
 @api.route('/applications/<int:app_id>', methods=['DELETE'])
 def delete_application(app_id):
-    global FAKE_APPLICATIONS
-    before = len(FAKE_APPLICATIONS)
-    FAKE_APPLICATIONS = [a for a in FAKE_APPLICATIONS if a["id"] != app_id]
+    app = Application.query.get(app_id)
 
-    if len(FAKE_APPLICATIONS) == before:
+    if app is None:
         return jsonify({"error": "application not found"}), 404
+
+    db.session.delete(app)
+    db.session.commit()
 
     return jsonify({"data": {"deleted": True, "id": app_id}}), 200
