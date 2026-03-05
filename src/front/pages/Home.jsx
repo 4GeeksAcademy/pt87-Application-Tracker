@@ -11,8 +11,9 @@ export const Home = () => {
 			const backendUrl = import.meta.env.VITE_BACKEND_URL
 
 			if (!backendUrl) throw new Error("VITE_BACKEND_URL is not defined in .env file")
+			const apiBase = backendUrl.replace(/\/$/, "")
 
-			const response = await fetch(backendUrl + "/api/hello")
+			const response = await fetch(apiBase + "/api/hello")
 			const data = await response.json()
 
 			if (response.ok) dispatch({ type: "set_hello", payload: data.message })
