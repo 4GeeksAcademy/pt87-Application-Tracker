@@ -12,7 +12,6 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 
-
 @api.route("/signup", methods=["POST"])
 def signup():
     data = request.get_json() or {}
@@ -55,16 +54,16 @@ def me():
     return jsonify(current_user.serialize()), 200
 
 
-
 @api.route('/hello', methods=['POST', 'GET'])
 def handle_hello():
     return jsonify({"message": "Hello! I'm a message that came from the backend."}), 200
 
 
-
 @api.route('/applications', methods=['GET'])
 def get_applications():
-    applications = Application.query.order_by(Application.id.desc()).all()
+    applications = db.session.scalars(
+        db.select(Application).order_by(Application.id.desc())
+    ).all()
     return jsonify({"data": [app.serialize() for app in applications]}), 200
 
 
