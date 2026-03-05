@@ -1,19 +1,21 @@
-import React, { useState, useContext } from "react"; 
-import { Link, useNavigate } from "react-router-dom";
-import { MetricsContext } from "../providers/Metrics"; 
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const STATUS_OPTIONS = ["Interested", "Applied", "Interview", "Offer", "Dismissed"];
+const initialForm = {
+  company: "",
+  role: "",
+  location: "",
+  application_date: "",
+  status: "Interested",
+  notes: "",
+  employment_type: "",
+};
 
 export default function Addjob() {
-  const navigate = useNavigate();
-  const { setApplications } = useContext(MetricsContext); 
-  const [form, setForm] = useState({
-    company: "",
-    role: "",
-    status: "Interested",
-  });
-  const [isSaving, setIsSaving] = useState(false);
+  const [form, setForm] = useState(initialForm);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -22,101 +24,145 @@ export default function Addjob() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setSubmitting(true);
     setError("");
 
-    if (!form.company.trim() || !form.role.trim()) {
-      setError("Company and role are required.");
-      return;
-    }
-
     try {
-      setIsSaving(true);
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/applications`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          company: form.company.trim(),
-          role: form.role.trim(),
-          status: form.status,
-        }),
-      });
-
-      const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload?.error || "Could not save application.");
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      if (!backendUrl) {
+        throw new Error("VITE_BACKEND_URL is not defined");
       }
 
-      setApplications((prev) => [...prev, payload.data]); 
+      const apiBase = backendUrl.replace(/\/$/, "");
+
+      const response = await fetch(`${apiBase}/api/applications`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Could not create application");
+      }
+
       navigate("/application");
-    } catch (submitError) {
-      setError(submitError.message || "Unexpected error.");
+    } catch (err) {
+      setError(err.message || "Could not create application");
     } finally {
-      setIsSaving(false);
+      setSubmitting(false);
     }
   };
 
- return (
-    <div className="container mt-4" style={{ maxWidth: "700px" }}>
+  return (
+    <div className="container mt-4">
       <h1>Add Job</h1>
-      <p className="text-muted">Save an application and track it in your Applications page.</p>
+      <p>Add a new job application.</p>
 
       {error && <div className="alert alert-danger">{error}</div>}
 
-      <form className="card p-4" onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="company" className="form-label">Company Name</label>
+      <form className="row g-3" onSubmit={handleSubmit}>
+        <div className="col-md-6">
+          <label htmlFor="company" className="form-label">Company</label>
           <input
+            type="text"
+            className="form-control"
             id="company"
             name="company"
-            type="text"
-            className="form-control"
             value={form.company}
-            onChange={handleChange}
-            placeholder="e.g. Google"
             required
+            onChange={handleChange}
           />
         </div>
 
-        <div className="mb-3">
+        <div className="col-md-6">
           <label htmlFor="role" className="form-label">Role</label>
           <input
-            id="role"
-            name="role"
             type="text"
             className="form-control"
+            id="role"
+            name="role"
             value={form.role}
-            onChange={handleChange}
-            placeholder="e.g. Frontend Developer"
             required
+            onChange={handleChange}
           />
         </div>
 
-        <div className="mb-4">
+        <div className="col-md-6">
+          <label htmlFor="location" className="form-label">Location</label>
+          <input
+            type="text"
+            className="form-control"
+            id="location"
+            name="location"
+            value={form.location}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="col-md-6">
+          <label htmlFor="application_date" className="form-label">Date</label>
+          <input
+            type="date"
+            className="form-control"
+            id="application_date"
+            name="application_date"
+            value={form.application_date}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="col-md-6">
           <label htmlFor="status" className="form-label">Status</label>
           <select
+            className="form-select"
             id="status"
             name="status"
-            className="form-select"
             value={form.status}
             onChange={handleChange}
           >
-            {STATUS_OPTIONS.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
+            <option value="Interested">Interested</option>
+            <option value="Applied">Applied</option>
+            <option value="Interview">Interview</option>
+            <option value="Offer">Offer</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Dismissed">Dismissed</option>
           </select>
         </div>
 
-        <div className="d-flex gap-2">
-          <button type="submit" className="btn btn-primary" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save Application"}
+        <div className="col-md-6">
+          <label htmlFor="employment_type" className="form-label">Employment Type</label>
+          <select
+            className="form-select"
+            id="employment_type"
+            name="employment_type"
+            value={form.employment_type}
+            onChange={handleChange}
+          >
+            <option value="">Choose...</option>
+            <option value="Full-time">Full-time</option>
+            <option value="Part-time">Part-time</option>
+            <option value="Contract">Contract</option>
+            <option value="Internship">Internship</option>
+          </select>
+        </div>
+
+        <div className="col-12">
+          <label htmlFor="notes" className="form-label">Notes</label>
+          <textarea
+            className="form-control"
+            id="notes"
+            name="notes"
+            rows="3"
+            value={form.notes}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="col-12">
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? "Saving..." : "Add Job"}
           </button>
-          <Link to="/application" className="btn btn-outline-secondary">
-            View Applications
-          </Link>
         </div>
       </form>
     </div>

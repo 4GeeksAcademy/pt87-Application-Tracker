@@ -1,9 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/img/applytracklogo.png";
 
-
-
 export const Navbar = () => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
@@ -44,11 +50,23 @@ export const Navbar = () => {
 
           {/* Right Side */}
           <ul className="navbar-nav">
-            <li className="nav-item">
-              <Link className="nav-link" to="/logout">
-                Logout <i className="fa-solid fa-arrow-right-from-bracket"></i>
-              </Link>
-            </li>
+            {token ? (
+              <li className="nav-item">
+                <button
+                  className="nav-link btn btn-link"
+                  onClick={handleLogout}
+                  style={{ color: "rgba(255,255,255,.55)" }}
+                >
+                  Logout <i className="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+              </li>
+            ) : (
+              <li className="nav-item">
+                <Link className="nav-link" to="/login">
+                  Login <i className="fa-solid fa-arrow-right-to-bracket"></i>
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       </div>

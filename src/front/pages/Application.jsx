@@ -1,194 +1,101 @@
-import React, { useEffect, useMemo, useContext } from "react"; 
-import { Link } from "react-router-dom";
-import { MetricsContext } from "../providers/Metrics"; 
-
-const STATUS_OPTIONS = ["Interested", "Applied", "Interview", "Offer", "Dismissed"];
-
+import { useEffect, useState } from "react";
 export default function Application() {
-  const { applications, setApplications } = useContext(MetricsContext); 
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [error, setError] = React.useState("");
-
-  const summary = useMemo(() => {
-    return applications.reduce(
-      (acc, app) => {
-        acc.total += 1;
-        if (app.status in acc.byStatus) {
-          acc.byStatus[app.status] += 1;
-        }
-        return acc;
-      },
-      {
-        total: 0,
-        byStatus: {
-          Interested: 0,
-          Applied: 0,
-          Interview: 0,
-          Offer: 0,
-          Dismissed: 0,
-        },
-      }
-    );
-  }, [applications]);
-
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const loadApplications = async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
       setError("");
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/applications`);
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload?.error || "Could not load applications.");
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      if (!backendUrl) {
+        throw new Error("VITE_BACKEND_URL is not defined");
       }
-
-      setApplications(payload?.data || []); 
-    } catch (loadError) {
-      setError(loadError.message || "Unexpected error.");
+      const apiBase = backendUrl.replace(/\/$/, "");
+      const response = await fetch(`${apiBase}/api/applications`);
+      const contentType = response.headers.get("content-type") || "";
+      const data = contentType.includes("application/json")
+        ? await response.json()
+        : null;
+      if (!response.ok) {
+        throw new Error(
+          data?.error || `Failed to load applications (status ${response.status})`
+        );
+      }
+      setApplications(data?.data || []);
+    } catch (err) {
+      setError(err.message || "Could not fetch applications");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
-
   useEffect(() => {
     loadApplications();
   }, []);
-
-  const updateStatus = async (appId, status) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/applications/${appId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-
-      const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload?.error || "Could not update status.");
-      }
-
-      setApplications((prev) => prev.map((app) => (app.id === appId ? payload.data : app))); 
-    } catch (updateError) {
-      setError(updateError.message || "Unexpected error.");
-    }
-  };
-
-  const deleteApplication = async (appId) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/applications/${appId}`, {
-        method: "DELETE",
-      });
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload?.error || "Could not delete application.");
-      }
-
-      setApplications((prev) => prev.filter((app) => app.id !== appId)); 
-    } catch (deleteError) {
-      setError(deleteError.message || "Unexpected error.");
-    }
-  };
-
+  const totalCount = applications.length;
+  const interviewsCount = applications.filter((app) =>
+    ["interview", "interviewing"].includes((app.status || "").toLowerCase())
+  ).length;
+  const offersCount = applications.filter(
+    (app) => (app.status || "").toLowerCase() === "offer"
+  ).length;
+  const dismissedCount = applications.filter((app) =>
+    ["dismissed", "rejected"].includes((app.status || "").toLowerCase())
+  ).length;
   return (
-            <div className="container mt-4">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                              <h1 className="mb-1">Applications</h1>
-                              <p className="text-muted mb-0">
-                                    Track, update stages, and remove dismissed or old applications.
-                              </p>
-                        </div>
-                        <Link to="/add-job" className="btn btn-primary">
-                              Add Job
-                        </Link>
-                  </div>
-
-                  <div className="row g-2 mb-4">
-                        <div className="col-md-2 col-6">
-                              <div className="card p-2 text-center">
-                                    <strong>{summary.total}</strong>
-                                    <span>Total</span>
-                              </div>
-                        </div>
-                        <div className="col-md-2 col-6">
-                              <div className="card p-2 text-center">
-                                    <strong>{summary.byStatus.Applied}</strong>
-                                    <span>Applied</span>
-                              </div>
-                        </div>
-                        <div className="col-md-2 col-6">
-                              <div className="card p-2 text-center">
-                                    <strong>{summary.byStatus.Interview}</strong>
-                                    <span>Interview</span>
-                              </div>
-                        </div>
-                        <div className="col-md-2 col-6">
-                              <div className="card p-2 text-center">
-                                    <strong>{summary.byStatus.Offer}</strong>
-                                    <span>Offer</span>
-                              </div>
-                        </div>
-                        <div className="col-md-2 col-6">
-                              <div className="card p-2 text-center">
-                                    <strong>{summary.byStatus.Dismissed}</strong>
-                                    <span>Dismissed</span>
-                              </div>
-                        </div>
-                  </div>
-
-                  {error && <div className="alert alert-danger">{error}</div>}
-
-                  {isLoading ? (
-                        <div className="alert alert-info">Loading applications...</div>
-                  ) : applications.length === 0 ? (
-                        <div className="alert alert-secondary">
-                              No applications yet. <Link to="/add-job">Create your first one</Link>.
-                        </div>
-                  ) : (
-                        <div className="table-responsive">
-                              <table className="table table-striped align-middle">
-                                    <thead>
-                                          <tr>
-                                                <th>Company</th>
-                                                <th>Role</th>
-                                                <th>Status</th>
-                                                <th style={{ width: "140px" }}>Delete</th>
-                                          </tr>
-                                    </thead>
-                                    <tbody>
-                                          {applications.map((application) => (
-                                                <tr key={application.id}>
-                                                      <td>{application.company}</td>
-                                                      <td>{application.role}</td>
-                                                      <td>
-                                                            <select
-                                                                  className="form-select form-select-sm"
-                                                                  value={application.status || "Interested"}
-                                                                  onChange={(event) => updateStatus(application.id, event.target.value)}
-                                                            >
-                                                                  {STATUS_OPTIONS.map((status) => (
-                                                                        <option key={status} value={status}>
-                                                                              {status}
-                                                                        </option>
-                                                                  ))}
-                                                            </select>
-                                                      </td>
-                                                      <td>
-                                                            <button
-                                                                  type="button"
-                                                                  className="btn btn-sm btn-outline-danger"
-                                                                  onClick={() => deleteApplication(application.id)}
-                                                            >
-                                                                  Delete
-                                                            </button>
-                                                      </td>
-                                                </tr>
-                                          ))}
-                                    </tbody>
-                              </table>
-                        </div>
-                  )}
+    <div className="container mt-4">
+      <h1>Applications</h1>
+      <p>Track and manage your job applications here.</p>
+      <div className="row g-3 mb-4">
+        {[
+          { label: "Applications", value: totalCount },
+          { label: "Interviews", value: interviewsCount },
+          { label: "Offers", value: offersCount },
+          { label: "Dismissed", value: dismissedCount },
+        ].map(({ label, value }) => (
+          <div className="col-md-3 col-6" key={label}>
+            <div className="card p-3 text-center">
+              <strong style={{ fontSize: "1.8rem" }}>{value}</strong>
+              <span className="text-muted">{label}</span>
             </div>
-      );
+          </div>
+        ))}
+      </div>
+      {loading && <p>Loading applications...</p>}
+      {error && <div className="alert alert-danger">{error}</div>}
+      {!loading && !error && applications.length === 0 && (
+        <div className="alert alert-secondary">
+          No applications yet. Go to Add Job to create your first one.
+        </div>
+      )}
+      {!loading && !error && applications.length > 0 && (
+        <div className="table-responsive">
+          <table className="table table-striped">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Location</th>
+                <th>Date</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              {applications.map((app) => (
+                <tr key={app.id}>
+                  <td>{app.company}</td>
+                  <td>{app.role}</td>
+                  <td>{app.status}</td>
+                  <td>{app.location || "-"}</td>
+                  <td>{app.application_date || "-"}</td>
+                  <td>{app.employment_type || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
 }
