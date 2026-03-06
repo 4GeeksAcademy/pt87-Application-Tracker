@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
 export default function Application() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -124,14 +126,28 @@ export default function Application() {
                   <td>{app.location || "-"}</td>
                   <td>{app.application_date || "-"}</td>
                   <td>{app.employment_type || "-"}</td>
-                  <td>
+                  <td className="d-flex gap-2">
+                    <Link
+                      to={`/application/${app.id}/edit`}
+                      className="btn btn-sm btn-outline-primary"
+                    >
+                      <i className="fa-solid fa-pen-to-square me-1"></i> Edit
+                    </Link>
+
                     <button
                       type="button"
                       className="btn btn-sm btn-outline-danger"
                       onClick={() => handleDelete(app.id)}
                       disabled={deletingId === app.id}
                     >
-                      {deletingId === app.id ? "Deleting..." : "Delete"}
+                      {deletingId === app.id ? (
+                        "Deleting..."
+                      ) : (
+                        <>
+                          <i className="fa-solid fa-trash-can me-1"></i>
+                          Delete
+                        </>
+                      )}
                     </button>
                   </td>
                 </tr>

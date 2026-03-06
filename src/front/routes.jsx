@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Application from "./pages/Application";
 import Addjob from "./pages/Addjob";
+import EditJob from "./pages/EditJob";
 import ChartPanel from "./pages/Chart";
 import StatsPanel from "./pages/Countup";
 
@@ -26,6 +27,7 @@ export const router = createBrowserRouter(
       <Route path="/signup" element={<Signup />} />
       <Route path="/application" element={<Application />} />
       <Route path="/add-job" element={<Addjob />} />
+      <Route path="/application/:id/edit" element={<EditJob />} />
       <Route path="/chart" element={<ChartPanel />} />
       <Route path="/countup" element={<StatsPanel />} />
     </Route>
