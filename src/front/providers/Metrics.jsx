@@ -5,11 +5,38 @@ export const MetricsContext = createContext();
 export function MetricsProvider({ children }) {
   const [applications, setApplications] = useState([]);
 
-  // Fetch from your backend on load
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/applications`)
-      .then((res) => res.json())
-      .then((payload) => setApplications(payload?.data || []));
+    const loadApplications = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+        if (!backendUrl || !token) return;
+
+        const apiBase = backendUrl.replace(/\/$/, "");
+
+        console.log("Metrics token:", token);
+        console.log("Metrics request URL:", `${apiBase}/api/applications`);
+
+        const response = await fetch(`${apiBase}/api/applications`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const payload = await response.json();
+
+        if (!response.ok) {
+          throw new Error(payload?.msg || payload?.error || "Failed to load applications");
+        }
+
+        setApplications(payload?.data || []);
+      } catch (error) {
+        console.error("Failed to load metrics applications:", error);
+      }
+    };
+
+    loadApplications();
   }, []);
 
   const metrics = {

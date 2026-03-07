@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Application() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
   const loadApplications = async () => {
     try {
       setLoading(true);
@@ -15,7 +19,17 @@ export default function Application() {
         throw new Error("VITE_BACKEND_URL is not defined");
       }
       const apiBase = backendUrl.replace(/\/$/, "");
-      const response = await fetch(`${apiBase}/api/applications`);
+
+      if (!token) {
+        throw new Error("You must be logged in");
+      }
+
+      const response = await fetch(`${apiBase}/api/applications`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       const contentType = response.headers.get("content-type") || "";
       const data = contentType.includes("application/json")
         ? await response.json()
@@ -32,9 +46,16 @@ export default function Application() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
     loadApplications();
-  }, []);
+  }, [token]);
+
   const handleDelete = async (appId) => {
     const shouldDelete = window.confirm(
       "Are you sure you want to delete this application?"
@@ -47,9 +68,18 @@ export default function Application() {
       if (!backendUrl) {
         throw new Error("VITE_BACKEND_URL is not defined");
       }
+
       const apiBase = backendUrl.replace(/\/$/, "");
+
+      if (!token) {
+        throw new Error("You must be logged in");
+      }
+
       const response = await fetch(`${apiBase}/api/applications/${appId}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       const contentType = response.headers.get("content-type") || "";
       const data = contentType.includes("application/json")

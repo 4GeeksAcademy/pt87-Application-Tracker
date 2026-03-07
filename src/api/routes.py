@@ -6,10 +6,16 @@ from flask_cors import CORS
 from flask_jwt_extended import jwt_required, create_access_token, current_user
 from api.models import db, User, Application
 from api.utils import generate_sitemap, APIException
+import traceback
 
 api = Blueprint('api', __name__)
 
-CORS(api)
+# CORS(api)
+
+
+@api.route('/hello', methods=['POST', 'GET'])
+def handle_hello():
+    return jsonify({"message": "Hello! I'm a message that came from the backend."}), 200
 
 
 @api.route("/signup", methods=["POST"])
@@ -54,20 +60,30 @@ def me():
     return jsonify(current_user.serialize()), 200
 
 
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
-    return jsonify({"message": "Hello! I'm a message that came from the backend."}), 200
-
-
 @api.route('/applications', methods=['GET'])
+@jwt_required()
 def get_applications():
-    applications = db.session.scalars(
-        db.select(Application).order_by(Application.id.desc())
-    ).all()
-    return jsonify({"data": [app.serialize() for app in applications]}), 200
+    try:
+        if current_user is None:
+            return jsonify({"error": "current_user is None"}), 401
+
+        applications = db.session.scalars(
+            db.select(Application)
+            .filter_by(user_id=current_user.id)
+            .order_by(Application.id.desc())
+        ).all()
+
+        return jsonify({"data": [app.serialize() for app in applications]}), 200
+
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }), 500
 
 
 @api.route('/applications', methods=['POST'])
+@jwt_required()
 def create_application():
     data = request.get_json() or {}
 
@@ -85,6 +101,7 @@ def create_application():
         status=(data.get("status") or "Interested").strip(),
         notes=(data.get("notes") or "").strip() or None,
         employment_type=(data.get("employment_type") or "").strip() or None,
+        user_id=current_user.id,
     )
     db.session.add(new_app)
     db.session.commit()
@@ -92,18 +109,23 @@ def create_application():
 
 
 @api.route('/applications/<int:app_id>', methods=['GET'])
+@jwt_required()
 def get_application(app_id):
     app = db.session.get(Application, app_id)
-    if app is None:
+
+    if app is None or app.user_id != current_user.id:
         return jsonify({"error": "application not found"}), 404
+
     return jsonify({"data": app.serialize()}), 200
 
 
 @api.route('/applications/<int:app_id>', methods=['PUT'])
+@jwt_required()
 def update_application(app_id):
     data = request.get_json() or {}
     app = db.session.get(Application, app_id)
-    if app is None:
+
+    if app is None or app.user_id != current_user.id:
         return jsonify({"error": "application not found"}), 404
 
     for field in ["company", "role", "location", "application_date", "status", "notes", "employment_type"]:
@@ -121,9 +143,10 @@ def update_application(app_id):
 
 
 @api.route('/applications/<int:app_id>', methods=['DELETE'])
+@jwt_required()
 def delete_application(app_id):
     app = db.session.get(Application, app_id)
-    if app is None:
+    if app is None or app.user_id != current_user.id:
         return jsonify({"error": "application not found"}), 404
 
     db.session.delete(app)

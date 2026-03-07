@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const initialForm = {
@@ -16,6 +16,16 @@ export default function Addjob() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/login");
+    }
+  }, []);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -35,9 +45,16 @@ export default function Addjob() {
 
       const apiBase = backendUrl.replace(/\/$/, "");
 
+      if (!token) {
+        throw new Error("You must be logged in");
+      }
+
       const response = await fetch(`${apiBase}/api/applications`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(form),
       });
 

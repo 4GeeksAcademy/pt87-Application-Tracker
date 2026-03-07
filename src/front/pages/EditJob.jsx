@@ -32,7 +32,14 @@ export default function EditJob() {
                     throw new Error("VITE_BACKEND_URL is not defined");
                 }
 
-                const response = await fetch(`${apiBase}/api/applications/${id}`);
+                const token = localStorage.getItem("token");
+
+                const response = await fetch(`${apiBase}/api/applications/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
                 const contentType = response.headers.get("content-type") || "";
                 const data = contentType.includes("application/json")
                     ? await response.json()
@@ -82,10 +89,13 @@ export default function EditJob() {
                 throw new Error("VITE_BACKEND_URL is not defined");
             }
 
+            const token = localStorage.getItem("token");
+
             const response = await fetch(`${apiBase}/api/applications/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(formData),
             });
