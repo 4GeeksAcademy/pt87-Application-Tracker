@@ -1,10 +1,20 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { MetricsContext } from "../providers/Metrics";
 import StatsPanel from "./Countup";
 import ChartPanel from "./Chart";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const { applications, metrics } = useContext(MetricsContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/login");
+    }
+  }, []);
 
   const getStatusColor = (status) => {
     if (status === "Interview") return "primary";
