@@ -1,9 +1,41 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import logo from "../assets/img/logo.png";
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      if (!token) {
+        setUser(null);
+        return;
+      }
+
+      try {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL.replace(/\/$/, "");
+        const response = await fetch(`${backendUrl}/api/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          setUser(null);
+          return;
+        }
+
+        const data = await response.json();
+        setUser(data);
+      } catch {
+        setUser(null);
+      }
+    };
+
+    loadUser();
+  }, [token]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -50,15 +82,24 @@ export const Navbar = () => {
           {/* Right Side */}
           <ul className="navbar-nav">
             {token ? (
-              <li className="nav-item">
-                <button
-                  className="nav-link btn btn-link"
-                  onClick={handleLogout}
-                  style={{ color: "rgba(255,255,255,.55)" }}
-                >
-                  Logout <i className="fa-solid fa-arrow-right-from-bracket"></i>
-                </button>
-              </li>
+              <>
+                <li className="nav-item">
+                  <span className="nav-link">
+                    <i className="fa-solid fa-user me-1"></i>
+                    {user?.username}
+                  </span>
+                </li>
+
+                <li className="nav-item">
+                  <button
+                    className="nav-link btn btn-link"
+                    onClick={handleLogout}
+                    style={{ color: "rgba(255,255,255,.55)" }}
+                  >
+                    Logout <i className="fa-solid fa-arrow-right-from-bracket"></i>
+                  </button>
+                </li>
+              </>
             ) : (
               <li className="nav-item">
                 <Link className="nav-link" to="/login">
