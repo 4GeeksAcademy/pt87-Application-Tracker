@@ -15,9 +15,6 @@ export function MetricsProvider({ children }) {
 
         const apiBase = backendUrl.replace(/\/$/, "");
 
-        console.log("Metrics token:", token);
-        console.log("Metrics request URL:", `${apiBase}/api/applications`);
-
         const response = await fetch(`${apiBase}/api/applications`, {
           headers: {
             Authorization: `Bearer ${token}`,
