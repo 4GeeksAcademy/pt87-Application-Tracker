@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react"; 
 import { useNavigate } from "react-router-dom";
+import { MetricsContext } from "../providers/Metrics"; 
 
 const initialForm = {
   company: "",
@@ -63,6 +64,7 @@ export default function Addjob() {
         throw new Error(data.error || "Could not create application");
       }
 
+      setApplications((prev) => [...prev, data.data]); 
       navigate("/application");
     } catch (err) {
       setError(err.message || "Could not create application");
