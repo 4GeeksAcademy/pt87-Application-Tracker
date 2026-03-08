@@ -1,30 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
+import { MetricsContext } from "../providers/Metrics";
 
 export default function Application() {
-  const [applications, setApplications] = useState([]);
+  const { applications, setApplications } = useContext(MetricsContext);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+
+  const apiBase = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+
   const loadApplications = async () => {
     try {
       setLoading(true);
       setError("");
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
-      if (!backendUrl) {
-        throw new Error("VITE_BACKEND_URL is not defined");
-      }
-      const apiBase = backendUrl.replace(/\/$/, "");
+      if (!apiBase) throw new Error("VITE_BACKEND_URL is not defined");
+
       const response = await fetch(`${apiBase}/api/applications`);
       const contentType = response.headers.get("content-type") || "";
-      const data = contentType.includes("application/json")
-        ? await response.json()
-        : null;
+      const data = contentType.includes("application/json") ? await response.json() : null;
+
       if (!response.ok) {
-        throw new Error(
-          data?.error || `Failed to load applications (status ${response.status})`
-        );
+        throw new Error(data?.error || `Failed to load applications (status ${response.status})`);
       }
+
       setApplications(data?.data || []);
     } catch (err) {
       setError(err.message || "Could not fetch applications");
@@ -32,41 +31,38 @@ export default function Application() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     loadApplications();
   }, []);
+
   const handleDelete = async (appId) => {
-    const shouldDelete = window.confirm(
-      "Are you sure you want to delete this application?"
-    );
+    const shouldDelete = window.confirm("Are you sure you want to delete this application?");
     if (!shouldDelete) return;
+
     try {
       setDeletingId(appId);
       setError("");
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
-      if (!backendUrl) {
-        throw new Error("VITE_BACKEND_URL is not defined");
-      }
-      const apiBase = backendUrl.replace(/\/$/, "");
+      if (!apiBase) throw new Error("VITE_BACKEND_URL is not defined");
+
       const response = await fetch(`${apiBase}/api/applications/${appId}`, {
         method: "DELETE",
       });
       const contentType = response.headers.get("content-type") || "";
-      const data = contentType.includes("application/json")
-        ? await response.json()
-        : null;
+      const data = contentType.includes("application/json") ? await response.json() : null;
+
       if (!response.ok) {
-        throw new Error(
-          data?.error || `Failed to delete application (status ${response.status})`
-        );
+        throw new Error(data?.error || `Failed to delete application (status ${response.status})`);
       }
-      setApplications((prev) => prev.filter((app) => app.id !== appId));
+
+      setApplications((prev) => prev.filter((app) => app.id !== appId)); 
     } catch (err) {
       setError(err.message || "Could not delete application");
     } finally {
       setDeletingId(null);
     }
   };
+
   const totalCount = applications.length;
   const interviewsCount = applications.filter((app) =>
     ["interview", "interviewing"].includes((app.status || "").toLowerCase())
@@ -77,10 +73,12 @@ export default function Application() {
   const dismissedCount = applications.filter((app) =>
     ["dismissed", "rejected"].includes((app.status || "").toLowerCase())
   ).length;
+
   return (
     <div className="container mt-4">
       <h1>Applications</h1>
       <p>Track and manage your job applications here.</p>
+
       <div className="row g-3 mb-4">
         {[
           { label: "Applications", value: totalCount },
@@ -96,6 +94,7 @@ export default function Application() {
           </div>
         ))}
       </div>
+
       {loading && <p>Loading applications...</p>}
       {error && <div className="alert alert-danger">{error}</div>}
       {!loading && !error && applications.length === 0 && (
@@ -133,7 +132,6 @@ export default function Application() {
                     >
                       <i className="fa-solid fa-pen-to-square me-1"></i> Edit
                     </Link>
-
                     <button
                       type="button"
                       className="btn btn-sm btn-outline-danger"
