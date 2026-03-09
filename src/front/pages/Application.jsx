@@ -36,7 +36,7 @@ export default function Application() {
 
       if (!apiBase) throw new Error("VITE_BACKEND_URL is not defined");
 
-      const response = await fetch(`${apiBase}/api/applications`);
+    
       const contentType = response.headers.get("content-type") || "";
       const data = contentType.includes("application/json") ? await response.json() : null;
 
