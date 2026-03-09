@@ -18,7 +18,7 @@ export default function Addjob() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
+  const { setApplications } = useContext(MetricsContext);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
