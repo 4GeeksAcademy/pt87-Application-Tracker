@@ -5,7 +5,7 @@ import ChartPanel from "./Chart";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  const { applications, metrics } = useContext(MetricsContext);
+  const { applications, metrics, loadApplications } = useContext(MetricsContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,7 +13,10 @@ export default function Dashboard() {
 
     if (!token) {
       navigate("/login");
+      return;
     }
+
+    loadApplications();
   }, []);
 
   const getStatusColor = (status) => {
