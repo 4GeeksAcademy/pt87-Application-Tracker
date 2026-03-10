@@ -52,7 +52,7 @@ export default function Dashboard() {
         <p className="text-muted">No applications yet.</p>
       ) : (
         <ul className="list-group mb-4">
-          {applications.slice(-5).reverse().map((app, index) => (
+          {applications.slice(0, 5).map((app, index) => (
             <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
               <div>
                 <strong>{app.role}</strong>

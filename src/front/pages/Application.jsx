@@ -31,7 +31,7 @@ export default function Application() {
     };
 
     run();
-  }, [token, navigate, loadApplications]);
+  }, [token, navigate]);
 
   const handleDelete = async (appId) => {
     const shouldDelete = window.confirm("Are you sure you want to delete this application?");
