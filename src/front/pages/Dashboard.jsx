@@ -5,7 +5,7 @@ import ChartPanel from "./Chart";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  const { applications, metrics } = useContext(MetricsContext);
+  const { applications, metrics, loadApplications } = useContext(MetricsContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,7 +13,10 @@ export default function Dashboard() {
 
     if (!token) {
       navigate("/login");
+      return;
     }
+
+    loadApplications();
   }, []);
 
   const getStatusColor = (status) => {
@@ -52,7 +55,7 @@ export default function Dashboard() {
         <p className="text-muted">No applications yet.</p>
       ) : (
         <ul className="list-group mb-4">
-          {applications.slice(-5).reverse().map((app, index) => (
+          {applications.slice(0, 5).map((app, index) => (
             <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
               <div>
                 <strong>{app.role}</strong>
